@@ -56,7 +56,7 @@ def main():
         #### What does LLM\:s have to do with this?
         A large usecase for large language models (LLM\:s) is to generate SQL queries.
         This is a very useful feature, as it allows users to interact with databases without having to know SQL.
-        But this is also prone to SQL injections, as the users and by extension the LLM:s, can generate malicious SQL queries.
+        But this is also prone to SQL injections, as the users and by extension the LLM\:s, can generate malicious SQL queries.
         """
     )
 
