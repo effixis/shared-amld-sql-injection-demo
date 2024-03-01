@@ -1,4 +1,8 @@
+import shutil
 import streamlit as st
+import hashlib
+from langchain_community.utilities import SQLDatabase
+
 
 def set_sidebar():
     with st.sidebar:
@@ -21,3 +25,32 @@ def set_sidebar():
         )
         st.markdown("#### Learn more about us at: https://effixis.ch/")
         st.markdown("---")
+
+
+@st.cache_resource(show_spinner="Loading database ...")
+def load_database() -> SQLDatabase:
+    st.session_state["original_checksum"] = calculate_file_checksum(
+        "./data/chinook_working.db"
+    )
+    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
+
+
+def reset_database():
+    """Copy original database to working database"""
+    shutil.copyfile("./data/chinook_backup.db", "./data/chinook_working.db")
+    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
+
+
+def calculate_file_checksum(file_path):
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read and update hash string value in blocks of 4K
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def has_database_changed() -> bool:
+    """Check if the working database has been changed"""
+    current_checksum = calculate_file_checksum("./data/chinook_working.db")
+    return current_checksum != st.session_state["original_checksum"]

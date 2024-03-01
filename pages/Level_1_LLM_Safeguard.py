@@ -1,23 +1,16 @@
-import shutil
+import os
 import streamlit as st
 import sqlite3
 from dotenv import load_dotenv
 from langchain.chains import create_sql_query_chain
 from langchain.schema import HumanMessage
 from langchain_openai import ChatOpenAI
-from langchain_community.utilities import SQLDatabase
-from modules.utils import set_sidebar
-
-
-@st.cache_resource(show_spinner="Loading database ...")
-def load_database() -> SQLDatabase:
-    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
-
-
-def reset_database():
-    """Copy original database to working database"""
-    shutil.copyfile("./data/chinook_backup.db", "./data/chinook_working.db")
-    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
+from modules.utils import (
+    set_sidebar,
+    load_database,
+    reset_database,
+    has_database_changed,
+)
 
 
 load_dotenv()
@@ -27,17 +20,17 @@ openai_instance = ChatOpenAI(
 )
 
 st.set_page_config(
-    page_title="LLM Safeguard", page_icon="assets/effixis_logo.ico"
+    page_title="Level 1: LLM Safeguard", page_icon="assets/effixis_logo.ico"
 )
 set_sidebar()
 
-st.title("LLM Safeguard")
+st.title("Level 1: LLM Safeguard")
 st.markdown("### *Can you sneak a malicious request past the LLM Safeguard?*")
 st.markdown(
     """
-    #### What is the difference between this demo and the one in the previous page?
-    In the previous page, the generated SQL query from the LLM was directly executed on the SQL database.
-    In this demo, the generated SQL query is first checked by an LLM Safeguard, which detects and removes malicious SQL queries.
+    #### What is the difference between this level and level 0?
+    In the previous level, the generated SQL query from the LLM was directly executed on the SQL database.
+    Now the generated SQL query is first checked by an LLM Safeguard, which detects and removes malicious SQL queries.
     Malicous SQL queries are defined as any SQL code that modifies the table. This includes SQL code that deletes, updates, or inserts data into the table.
     """
 )
@@ -50,6 +43,7 @@ if st.button("Reset database"):
 else:
     database = load_database()
 chain = create_sql_query_chain(llm=openai_instance, db=database)
+success = False
 
 if user_request := st.text_input("Enter your request here:"):
     with st.spinner("Generating response ..."):
@@ -83,7 +77,9 @@ if user_request := st.text_input("Enter your request here:"):
             openai_response=openai_response
         )
         messages = [HumanMessage(content=prompt)]
-        safe_query = openai_instance.generate(messages=[messages]).generations[0][0].text
+        safe_query = (
+            openai_instance.generate(messages=[messages]).generations[0][0].text
+        )
         st.markdown("## LLM Safeguard Result:")
         st.code(safe_query, language="sql")
         st.markdown("## SQL Result:")
@@ -99,7 +95,14 @@ if user_request := st.text_input("Enter your request here:"):
                 sql_result = database.run(sql_query)
                 if sql_result:
                     st.code(sql_result)
+                if has_database_changed():
+                    success = True
+                    st.balloons()
             except sqlite3.OperationalError as e:
                 st.error(e)
-        st.success("Done!")
-
+        if success:
+            st.success(
+                f"Congratulations! You have successfully altered the database and passed level 1! Here's your key: `{os.environ.get('LEVEL_1_KEY')}`"
+            )
+        else:
+            st.success("Done!")
