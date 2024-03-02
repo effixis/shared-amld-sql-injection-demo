@@ -46,6 +46,7 @@ def main():
 
         - **Level 0**: You generate the SQL queries with the help of the LLM.
         - **Level 1**: The SQL queries are first checked by an LLM Safeguard, which detects and removes malicious SQL queries.
+        - **Level 2**: The only difference is that we are using a better LLM model, GPT-4, for the safeguard. Otherwise they are the same.
 
         Are you happy with your results? Submit the keys on the leaderboard to see how you compare to others!
         """
