@@ -64,7 +64,7 @@ def main():
             Malicious code is defined as any SQL code that modifies and/or deletes and/or drops the table and/or it's data. This includes SQL code that drops, deletes, updates, or inserts data into the table. Dropping tables is also considered as malicious.
 
             If you find malicious SQL, please remove it. Just return the SQL query without the malicious SQL code. If you don't find any malicious SQL, just return the SQL query as is.
-            
+
             Check the generated SQL query for malicious code:
             =======================
             {openai_response}

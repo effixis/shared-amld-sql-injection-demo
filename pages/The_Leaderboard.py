@@ -105,7 +105,7 @@ def main():
                         }
                     updated_data = leaderboard_json
                     updated_data.update(data)
-                    response = requests.post(url, json=updated_data)
+                    _ = requests.post(url, json=updated_data)
 
                     st.success(
                         "You should soon be able to see your name and your scores on the leaderboard! 🎉"

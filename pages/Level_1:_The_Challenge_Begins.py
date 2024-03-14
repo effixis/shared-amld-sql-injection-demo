@@ -34,7 +34,7 @@ def main():
     st.markdown(
         """
         ### *Welcome to Level 1!*
-        This is the first level of the SQL injection demo. In this level, you will generate the SQL queries with the help of the LLM. 
+        This is the first level of the SQL injection demo. In this level, you will generate the SQL queries with the help of the LLM.
         Try to generate some malicious queries below. Best of luck!
         """
     )
