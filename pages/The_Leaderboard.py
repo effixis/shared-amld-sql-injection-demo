@@ -1,17 +1,24 @@
 import os
-import pandas as pd
-import streamlit as st
-import requests
 
+import pandas as pd
+import requests
+import streamlit as st
 from dotenv import load_dotenv
+
 from modules.utils import set_sidebar
 
-
 load_dotenv()
-st.set_page_config(page_title="LLM Safeguard", page_icon="assets/effixis_logo.ico")
+
+PAGE_TITLE = "The Leaderboard"
+
+st.set_page_config(
+    page_title=PAGE_TITLE,
+    page_icon="assets/effixis_logo.ico",
+    layout="centered",
+)
 set_sidebar()
 
-st.title("The Leaderboard")
+st.title(PAGE_TITLE)
 
 st.markdown(
     """
@@ -42,7 +49,7 @@ if leaderboard_response.status_code == 200:
     leaderboard_data.index += 1
     st.dataframe(leaderboard_data)
 else:
-    st.error("An error occured while fetching the leaderboard.")
+    st.error("An error occurred while fetching the leaderboard.")
 
 
 # Submit keys
@@ -101,4 +108,4 @@ with st.form("leaderboard"):
                     "You should soon be able to see your name and your scores on the leaderboard! 🎉"
                 )
             except Exception as e:
-                st.error(f"An error occured while submitting your key: {e}")
+                st.error(f"An error occurred while submitting your key: {e}")

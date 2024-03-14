@@ -15,7 +15,6 @@ Welcome to the AMLD SQL Injection Demo by Effixis for AMLD EPFL 2024! This proje
 ## Installation
 
 1. Clone the repository:
-    
     ```bash
     git clone https://github.com/effixis/shared-amld-sql-injection-demo.git
     ```
@@ -49,7 +48,7 @@ Welcome to the AMLD SQL Injection Demo by Effixis for AMLD EPFL 2024! This proje
 Run the Streamlit application:
 
 ```bash
-streamlit run Basic_SQL_Injections.py
+streamlit run Introduction.py
 ```
 
 Follow the instructions on the web interface to interact with the application.
