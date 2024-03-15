@@ -109,7 +109,7 @@ def main():
                     st.error(e)
             if success:
                 st.success(
-                    f"Congratulations! You have successfully altered the database and passed Level 2! Here's your key: `{os.environ.get('LEVEL_1_KEY')}`"
+                    f"Congratulations! You have successfully altered the database and passed Level 2! Here's your key: `{os.environ.get('LEVEL_2_KEY')}`"
                 )
             else:
                 st.success("Done!")

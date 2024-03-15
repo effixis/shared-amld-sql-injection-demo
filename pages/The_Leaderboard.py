@@ -37,18 +37,24 @@ def main():
         leaderboard_data = (
             pd.DataFrame(leaderboard_json)
             .T[["level 0", "level 1", "level 2"]]
-            .applymap(lambda x: "✅" if x else "❌")
+            .rename(
+                columns={
+                    "level 0": "Level 1",
+                    "level 1": "Level 2",
+                    "level 2": "Level 3",
+                },
+            )
+            .map(lambda x: "✅" if x else "❌")
+            .assign(
+                Score=lambda df: df.apply(
+                    lambda x: x.value_counts().get("✅", 0) * 100, axis=1
+                )
+            )
+            .sort_values(by="Score", ascending=False)
+            .reset_index()
+            .rename(columns={"index": "Name"})
         )
-        leaderboard_data = leaderboard_data.rename(
-            columns={"level 0": "Level 0", "level 1": "Level 1", "level 2": "Level 2"}
-        )
-        leaderboard_data["Score"] = leaderboard_data.apply(
-            lambda x: x.value_counts().get("✅", 0) * 100, axis=1
-        )
-        leaderboard_data = leaderboard_data.sort_values(by="Score", ascending=False)
-        leaderboard_data = leaderboard_data.reset_index()
-        leaderboard_data = leaderboard_data.rename(columns={"index": "Name"})
-        leaderboard_data.index += 1
+        # leaderboard_data.index += 1
         st.dataframe(leaderboard_data)
     else:
         st.error("An error occurred while fetching the leaderboard.")
@@ -77,30 +83,36 @@ def main():
                         data = {
                             display_name: {
                                 "email": email,
-                                "level 0": key == os.environ.get("LEVEL_0_KEY"),
                                 "level 1": key == os.environ.get("LEVEL_1_KEY"),
                                 "level 2": key == os.environ.get("LEVEL_2_KEY"),
+                                "level 3": key == os.environ.get("LEVEL_3_KEY"),
                             }
                         }
                     else:
                         data = {
                             display_name: {
                                 "email": email,
-                                "level 0": key == os.environ.get("LEVEL_0_KEY")
-                                or leaderboard_data[
-                                    leaderboard_data["Name"] == display_name
-                                ]["Level 0"].values[0]
-                                == "✅",
-                                "level 1": key == os.environ.get("LEVEL_1_KEY")
-                                or leaderboard_data[
-                                    leaderboard_data["Name"] == display_name
-                                ]["Level 1"].values[0]
-                                == "✅",
-                                "level 2": key == os.environ.get("LEVEL_2_KEY")
-                                or leaderboard_data[
-                                    leaderboard_data["Name"] == display_name
-                                ]["Level 2"].values[0]
-                                == "✅",
+                                "level 1": (
+                                    key == os.environ.get("LEVEL_1_KEY")
+                                    or leaderboard_data[
+                                        leaderboard_data["Name"] == display_name
+                                    ]["Level 1"].values[0]
+                                    == "✅"
+                                ),
+                                "level 2": (
+                                    key == os.environ.get("LEVEL_2_KEY")
+                                    or leaderboard_data[
+                                        leaderboard_data["Name"] == display_name
+                                    ]["Level 2"].values[0]
+                                    == "✅"
+                                ),
+                                "level 3": (
+                                    key == os.environ.get("LEVEL_3_KEY")
+                                    or leaderboard_data[
+                                        leaderboard_data["Name"] == display_name
+                                    ]["Level 3"].values[0]
+                                    == "✅"
+                                ),
                             }
                         }
                     updated_data = leaderboard_json

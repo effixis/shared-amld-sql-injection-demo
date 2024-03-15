@@ -113,7 +113,7 @@ def main():
                     st.error(e)
             if success:
                 st.success(
-                    f"Wow! Well done, you passed Level 3! Here's your key: `{os.getenv('LEVEL_2_KEY')}`"
+                    f"Wow! Well done, you passed Level 3! Here's your key: `{os.getenv('LEVEL_3_KEY')}`"
                 )
             else:
                 st.success("Done!")
