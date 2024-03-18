@@ -1,10 +1,14 @@
-import shutil
-import streamlit as st
 import hashlib
+import shutil
+
+import streamlit as st
 from langchain_community.utilities import SQLDatabase
 
+WORKING_DB = "data/chinook_working.db"
+BACKUP_DB = "data/chinook_backup.db"
 
-def set_sidebar():
+
+def set_sidebar() -> None:
     with st.sidebar:
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -29,19 +33,16 @@ def set_sidebar():
 
 @st.cache_resource(show_spinner="Loading database ...")
 def load_database() -> SQLDatabase:
-    st.session_state["original_checksum"] = calculate_file_checksum(
-        "./data/chinook_working.db"
-    )
-    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
+    return SQLDatabase.from_uri(f"sqlite:///{WORKING_DB}")
 
 
-def reset_database():
+def _reset_database() -> SQLDatabase:
     """Copy original database to working database"""
-    shutil.copyfile("./data/chinook_backup.db", "./data/chinook_working.db")
-    return SQLDatabase.from_uri("sqlite:///data/chinook_working.db")
+    shutil.copyfile(f"./{BACKUP_DB}", f"./{WORKING_DB}")
+    return SQLDatabase.from_uri(f"sqlite:///{WORKING_DB}")
 
 
-def calculate_file_checksum(file_path):
+def _calculate_file_checksum(file_path: str) -> str:
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         # Read and update hash string value in blocks of 4K
@@ -52,5 +53,23 @@ def calculate_file_checksum(file_path):
 
 def has_database_changed() -> bool:
     """Check if the working database has been changed"""
-    current_checksum = calculate_file_checksum("./data/chinook_working.db")
-    return current_checksum != st.session_state["original_checksum"]
+    original_checksum = _calculate_file_checksum(BACKUP_DB)
+    current_checksum = _calculate_file_checksum(WORKING_DB)
+    return original_checksum != current_checksum
+
+
+def user_prompt_with_button() -> tuple[str, bool]:
+    user_request = st.text_input("Prompt:", placeholder="Enter your prompt here ...")
+    enter = st.button("Enter", use_container_width=True)
+    return user_request, enter
+
+
+def success_or_try_again(message: str, success: bool) -> None:
+    if success:
+        st.balloons()
+        st.success(message)
+        _reset_database()
+        st.stop()
+    else:
+        st.warning("The database was not altered.")
+        st.info("Please try again.")

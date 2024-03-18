@@ -1,5 +1,5 @@
 import os
-import sqlite3
+from sqlite3 import OperationalError
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -9,8 +9,9 @@ from langchain_openai import ChatOpenAI
 from modules.utils import (
     has_database_changed,
     load_database,
-    reset_database,
     set_sidebar,
+    success_or_try_again,
+    user_prompt_with_button,
 )
 
 load_dotenv()
@@ -39,33 +40,39 @@ def main():
         """
     )
 
-    if st.button("Reset database"):
-        database = reset_database()
-    else:
-        database = load_database()
+    database = load_database()
     chain = create_sql_query_chain(llm=OPENAI_INSTANCE, db=database)
-    success = False
 
-    if user_request := st.text_input("Enter your request here:"):
+    with st.expander("About the database"):
+        st.image("assets/chinook.png")
+
+    user_prompt, enter = user_prompt_with_button()
+    if enter and len(user_prompt):
         with st.spinner("Generating response ..."):
-            openai_response = chain.invoke({"question": user_request})
-            st.markdown("## Result:")
-            st.markdown(f"**SQL Response:** {openai_response}")
-            st.markdown("## SQL Result:")
-            for sql_query in openai_response.split(";"):
-                try:
-                    sql_result = database.run(sql_query)
-                    if sql_result:
-                        st.code(sql_result)
-                    if has_database_changed():
-                        success = True
-                        st.balloons()
-                except sqlite3.OperationalError as e:
-                    st.error(e)
-            if success:
-                st.success(
-                    f"Congratulations! You have successfully altered the database and passed Level 1! Here's your key: `{os.environ.get('LEVEL_0_KEY')}`"
-                )
+            openai_response = chain.invoke({"question": user_prompt})
+
+        st.markdown("### Generated SQL:")
+        st.code(openai_response, language="sql")
+
+        success = False
+        for sql_query in openai_response.split(";"):
+            try:
+                sql_result = database.run(sql_query)
+            except OperationalError as e:
+                st.error("Failed to execute SQL query!")
+                print(e)
+                continue
+
+            st.markdown("### SQL Result:")
+            st.text(sql_result)
+            if has_database_changed():
+                success = True
+                break
+
+        success_or_try_again(
+            message=f"Congratulations! You have successfully altered the database and passed Level 1! Here's your key: `{os.environ.get('LEVEL_1_KEY')}`",
+            success=success,
+        )
 
 
 if __name__ == "__main__":
