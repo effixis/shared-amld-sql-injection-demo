@@ -1,3 +1,16 @@
+---
+title: AMLD SQL Injection Demo
+emoji: 💻
+colorFrom: blue
+colorTo: blue
+sdk: docker
+app_port: 8050
+python_version: "3.10"
+app_file: Introduction.py
+fullWidth: true
+pinned: true
+---
+
 # AMLD SQL Injection Demo
 
 ## Introduction
