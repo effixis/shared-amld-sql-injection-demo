@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  backend:
+    restart: "no"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8050:8050
+    env_file:
+      - .env

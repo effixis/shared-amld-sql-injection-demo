@@ -1,0 +1,10 @@
+[theme]
+font = "sans serif"
+
+[server]
+port = 8050
+enableWebsocketCompression= false
+
+[browser]
+serverPort = 8050
+serverAddress = "localhost"
