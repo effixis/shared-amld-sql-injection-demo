@@ -37,7 +37,7 @@ def main():
 
     st.markdown(
         """
-        ### *Welcome to the leaderboard!*
+        ### *Welcome to the Leaderboard!*
         Here you can submit your keys and see how you compare to others!
         """
     )
